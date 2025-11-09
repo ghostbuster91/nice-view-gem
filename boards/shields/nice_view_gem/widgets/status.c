@@ -260,25 +260,12 @@ static void output_status_update_cb(struct output_status_state state) {
 }
 
 static struct output_status_state output_status_get_state(const zmk_event_t *_eh) {
-    struct output_status_state state = {0};
-
-    state.selected_endpoint = zmk_endpoints_selected();
-
-    uint8_t active = zmk_ble_active_profile_index();
-
-    state.active_profile_index = active;
-    state.active_profile_connected = zmk_ble_active_profile_is_connected();
-    state.active_profile_bonded = !zmk_ble_active_profile_is_open();
-
-    for (int i = 0; i < MIN(NICEVIEW_PROFILE_COUNT, ZMK_BLE_PROFILE_COUNT); ++i) {
-        bool is_active = (i == active);
-
-        // Dla zgodności z nowym API:
-        state.profiles_connected[i] = is_active ? state.active_profile_connected : false;
-        state.profiles_bonded[i]    = is_active ? state.active_profile_bonded    : false;
-    }
-
-    return state;
+    return (struct output_status_state){
+        .selected_endpoint = zmk_endpoints_selected(),
+        .active_profile_index = zmk_ble_active_profile_index(),
+        .active_profile_connected = zmk_ble_active_profile_is_connected(),
+        .active_profile_bonded = !zmk_ble_active_profile_is_open(),
+    };
 }
 
 ZMK_DISPLAY_WIDGET_LISTENER(widget_output_status, struct output_status_state,
